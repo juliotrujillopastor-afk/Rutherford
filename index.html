@@ -1,0 +1,1781 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulador del Experimento de Rutherford | 1º Bachillerato</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Tailwind Config for Custom Theme -->
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            gold: {
+              300: '#fde047',
+              400: '#facc15',
+              500: '#eab308',
+              600: '#ca8a04',
+            },
+            alpha: {
+              glow: '#06b6d4',
+              core: '#38bdf8',
+            },
+            zns: {
+              glow: '#10b981',
+              dark: '#064e3b',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+    
+    .glow-gold {
+      box-shadow: 0 0 15px rgba(234, 179, 8, 0.3);
+    }
+    .glow-cyan {
+      box-shadow: 0 0 15px rgba(6, 182, 212, 0.4);
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col antialiased selection:bg-amber-500 selection:text-slate-950">
+
+  <!-- TOP HEADER / NAVBAR -->
+  <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-300 flex items-center justify-center text-slate-950 font-bold text-xl shadow-lg shadow-amber-500/20">
+          α
+        </div>
+        <div>
+          <h1 class="font-bold text-lg sm:text-xl text-slate-100 flex items-center gap-2">
+            Experimento de Rutherford
+            <span class="text-xs font-normal px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 hidden sm:inline-block">
+              Física y Química · 1º Bachillerato
+            </span>
+          </h1>
+          <p class="text-xs text-slate-400 hidden sm:block">Dispersión de partículas alfa y descubrimiento del núcleo atómico</p>
+        </div>
+      </div>
+
+      <!-- MAIN TABS NAVIGATION -->
+      <nav class="flex items-center gap-1 bg-slate-950/60 p-1.5 rounded-xl border border-slate-800">
+        <button id="tabBtnSim" onclick="switchTab('sim')" class="px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 bg-amber-500 text-slate-950 font-semibold shadow">
+          <span class="flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Simulador
+          </span>
+        </button>
+        <button id="tabBtnTheory" onclick="switchTab('theory')" class="px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-all duration-200">
+          <span class="flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+            Teoría
+          </span>
+        </button>
+        <button id="tabBtnQuiz" onclick="switchTab('quiz')" class="px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-all duration-200">
+          <span class="flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Cuestionario
+          </span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-6 flex flex-col gap-6">
+
+    <!-- ================================================================= -->
+    <!-- TAB 1: SIMULADOR INTERACTIVO                                      -->
+    <!-- ================================================================= -->
+    <section id="tab-sim" class="space-y-6">
+
+      <!-- TOP CONTROL BAR: MODELS & VIEWS -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4 shadow-xl">
+        
+        <!-- Atomic Model Selector -->
+        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+          <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold flex items-center gap-1.5">
+            <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+            Modelo Atómico:
+          </span>
+          <div class="inline-flex p-1 bg-slate-950 rounded-xl border border-slate-800">
+            <button id="modelRutherfordBtn" onclick="setModel('rutherford')" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 bg-amber-500 text-slate-950 shadow">
+              Rutherford (Nuclear)
+            </button>
+            <button id="modelThomsonBtn" onclick="setModel('thomson')" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 text-slate-400 hover:text-slate-100">
+              Thomson ("Pan de pasas")
+            </button>
+          </div>
+        </div>
+
+        <!-- View Switcher -->
+        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+          <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold flex items-center gap-1.5">
+            <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+            Vista del Laboratorio:
+          </span>
+          <div class="inline-flex p-1 bg-slate-950 rounded-xl border border-slate-800">
+            <button id="viewMicroBtn" onclick="setViewMode('micro')" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 bg-cyan-500 text-slate-950 shadow">
+              Microscópica (Escala Atómica)
+            </button>
+            <button id="viewMacroBtn" onclick="setViewMode('macro')" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 text-slate-400 hover:text-slate-100">
+              Macroscópica (Lámina + Pantalla ZnS)
+            </button>
+          </div>
+        </div>
+
+        <!-- Simulation Actions -->
+        <div class="flex items-center gap-2 flex-wrap">
+          <button id="btnFireOne" onclick="fireSingleParticle(false)" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-100 border border-slate-700 rounded-xl text-xs font-medium transition flex items-center gap-1.5 active:scale-95" title="Disparar partícula con el parámetro b actual del slider">
+            <svg class="w-3.5 h-3.5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            Disparar (b actual)
+          </button>
+          <button id="btnFireRandom" onclick="fireSingleParticle(true)" class="px-3 py-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 active:scale-95" title="Disparar partícula eligiendo b aleatoriamente">
+            <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            Disparar 1 (b aleatorio)
+          </button>
+          <button id="btnContinuous" onclick="toggleContinuous()" class="px-3.5 py-2 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold rounded-xl text-xs transition flex items-center gap-1.5 shadow-lg shadow-cyan-500/20 active:scale-95">
+            <span id="continuousIcon" class="w-2 h-2 rounded-full bg-slate-950 animate-ping"></span>
+            <span id="continuousText">Emisión Continua</span>
+          </button>
+          <button onclick="resetStats()" class="px-3 py-2 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 active:scale-95" title="Reiniciar datos y contadores de partículas">
+            <svg class="w-3.5 h-3.5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            Reiniciar Contadores
+          </button>
+        </div>
+
+      </div>
+
+      <!-- MAIN SIMULATOR WORKSPACE (CANVAS + CONTROLS PANEL) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+        <!-- CANVAS DISPLAY AREA (8 COLS) -->
+        <div class="lg:col-span-8 bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl relative flex flex-col">
+          
+          <!-- Canvas Banner / Info overlay -->
+          <div class="bg-slate-950/80 border-b border-slate-800/80 px-4 py-2.5 flex flex-wrap items-center justify-between text-xs text-slate-300 gap-2">
+            <div class="flex items-center gap-2">
+              <span id="activeModelBadge" class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-semibold border border-amber-500/30">
+                Modelo Nuclear de Rutherford
+              </span>
+              <span id="activeElementBadge" class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
+                Oro (Z = 79)
+              </span>
+            </div>
+            <div class="px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 font-mono text-[11px]" title="Relación de tamaño real entre núcleo y átomo">
+              Escala Real: 1 : 100.000 (10⁻¹⁵ m vs 10⁻¹⁰ m)
+            </div>
+            <div id="canvasLegend" class="flex items-center gap-4 text-xs font-mono">
+              <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-cyan-400 inline-block shadow shadow-cyan-400/50"></span> Partícula α (+2e)</span>
+              <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block shadow shadow-amber-400/50"></span> Núcleo denso</span>
+            </div>
+          </div>
+
+          <!-- The Render Canvas -->
+          <div class="relative w-full aspect-[16/10] sm:aspect-[16/9] bg-slate-950 flex items-center justify-center overflow-hidden">
+            <canvas id="simCanvas" class="w-full h-full block cursor-crosshair"></canvas>
+            
+            <!-- Floating Overlay Message for Thomson vs Rutherford -->
+            <div id="modelNotice" class="absolute bottom-3 left-3 bg-slate-900/90 border border-slate-800 backdrop-blur rounded-xl px-3.5 py-2 text-xs text-slate-300 max-w-sm pointer-events-none shadow-lg transition-all duration-300">
+              <span id="modelNoticeText">
+                <strong>Modelo Rutherford:</strong> Toda la carga positiva (+Ze) está concentrada en un núcleo ultra-compacto. Repulsión electrostática de Coulomb F<sub>e</sub> = k · q₁ · q₂ / r².
+              </span>
+            </div>
+          </div>
+
+          <!-- Canvas Footer Stats Ticker -->
+          <div class="bg-slate-900/90 border-t border-slate-800 p-3 grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs">
+            <div class="bg-slate-950/60 p-2 rounded-xl border border-slate-800/80">
+              <div class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold">Total Emitidas</div>
+              <div id="statTotal" class="text-base sm:text-lg font-bold font-mono text-cyan-400">0</div>
+              <div class="text-[10px] text-slate-500 font-mono">100%</div>
+            </div>
+            <div class="bg-slate-950/60 p-2 rounded-xl border border-slate-800/80">
+              <div class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold">Sin Desviación (&lt; 5°)</div>
+              <div id="statUndeviated" class="text-base sm:text-lg font-bold font-mono text-emerald-400">0</div>
+              <div id="statUndeviatedPct" class="text-[11px] font-semibold font-mono text-emerald-400/90">0.0%</div>
+            </div>
+            <div class="bg-slate-950/60 p-2 rounded-xl border border-slate-800/80">
+              <div class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold">Desviadas (5° - 90°)</div>
+              <div id="statDeflected" class="text-base sm:text-lg font-bold font-mono text-amber-400">0</div>
+              <div id="statDeflectedPct" class="text-[11px] font-semibold font-mono text-amber-400/90">0.0%</div>
+            </div>
+            <div class="bg-slate-950/60 p-2 rounded-xl border border-slate-800/80">
+              <div class="text-slate-400 text-[10px] uppercase tracking-wider font-semibold">Rebotadas (&gt; 90°)</div>
+              <div id="statBackscattered" class="text-base sm:text-lg font-bold font-mono text-rose-400">0</div>
+              <div id="statBackscatteredPct" class="text-[11px] font-semibold font-mono text-rose-400/90">0.00%</div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- CONTROLS & STATISTICAL ANALYSIS PANEL (4 COLS) -->
+        <div class="lg:col-span-4 space-y-6">
+
+          <!-- PARAMETER CONTROLS CARD -->
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-5">
+            <h3 class="font-bold text-sm text-slate-200 uppercase tracking-wider flex items-center justify-between border-b border-slate-800 pb-2">
+              <span>Parámetros Físicos</span>
+              <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
+            </h3>
+
+            <!-- 1. Target Element Selector -->
+            <div class="space-y-2">
+              <label class="text-xs text-slate-300 font-medium flex justify-between">
+                <span>Material de la Lámina (Número Atómico Z):</span>
+                <span id="elementZVal" class="font-mono text-amber-400 font-bold">Oro (Z = 79)</span>
+              </label>
+              <div class="grid grid-cols-3 gap-1.5 p-1 bg-slate-950 rounded-xl border border-slate-800">
+                <button id="elemAu" onclick="setElement('Au')" class="py-1.5 text-xs font-semibold rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/40 transition">
+                  Oro (Z = 79)
+                </button>
+                <button id="elemAg" onclick="setElement('Ag')" class="py-1.5 text-xs font-semibold rounded-lg text-slate-400 hover:text-slate-200 transition">
+                  Plata (Z = 47)
+                </button>
+                <button id="elemAl" onclick="setElement('Al')" class="py-1.5 text-xs font-semibold rounded-lg text-slate-400 hover:text-slate-200 transition">
+                  Aluminio (Z = 13)
+                </button>
+              </div>
+            </div>
+
+            <!-- 2. Kinetic Energy Slider -->
+            <div class="space-y-2">
+              <div class="flex justify-between items-center text-xs">
+                <label for="energySlider" class="text-slate-300 font-medium">Energía Cinética de la Partícula α (E<sub>k</sub>):</label>
+                <span id="energyValue" class="font-mono text-cyan-400 font-bold">5.0 MeV</span>
+              </div>
+              <input type="range" id="energySlider" min="1.0" max="10.0" step="0.5" value="5.0" oninput="updateEnergy(this.value)"
+                class="w-full h-2 bg-slate-950 rounded-lg appearance-none cursor-pointer accent-cyan-400 border border-slate-800">
+              <div class="flex justify-between text-[10px] text-slate-500 font-mono">
+                <span>1.0 MeV (Lenta)</span>
+                <span>10.0 MeV (Rápida)</span>
+              </div>
+            </div>
+
+            <!-- 3. Impact Parameter b Slider (Micro view) -->
+            <div id="impactParamBox" class="space-y-2 bg-slate-950/60 p-3 rounded-xl border border-slate-800">
+              <div class="flex justify-between items-center text-xs">
+                <label for="impactSlider" class="text-slate-300 font-medium">Parámetro de Impacto (<span class="font-mono text-amber-400 font-bold">b</span>):</label>
+                <span id="impactValue" class="font-mono text-amber-400 font-bold">+12 pm</span>
+              </div>
+              <input type="range" id="impactSlider" min="-80" max="80" step="1" value="12" oninput="updateImpact(this.value)"
+                class="w-full h-2 bg-slate-900 rounded-lg appearance-none cursor-pointer accent-amber-400 border border-slate-800">
+              <div class="flex justify-between text-[10px] text-slate-500 font-mono">
+                <span>-80 pm (Abajo)</span>
+                <span>0 pm (Frontal)</span>
+                <span>+80 pm (Arriba)</span>
+              </div>
+
+              <!-- Interactive b explanation box -->
+              <div class="bg-amber-500/10 border border-amber-500/20 rounded-lg p-2.5 text-[11px] text-slate-300 space-y-1">
+                <div class="font-bold text-amber-300 flex items-center gap-1">
+                  <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                  ¿Qué es el parámetro de impacto "b"?
+                </div>
+                <p class="leading-relaxed text-slate-300">
+                  Es la <strong>distancia vertical con signo</strong> desde la línea central del núcleo:
+                </p>
+                <ul class="list-disc list-inside text-slate-400 text-[10.5px] space-y-0.5">
+                  <li><strong>b &gt; 0</strong>: Disparo por <em>arriba</em> del núcleo (desvío/rebote hacia arriba).</li>
+                  <li><strong>b = 0</strong>: Impacto <em>frontal directo</em> $\rightarrow$ <span class="text-rose-400 font-bold">Rebote (&gt; 90°)</span>.</li>
+                  <li><strong>b &lt; 0</strong>: Disparo por <em>abajo</em> del núcleo (desvío/rebote hacia abajo).</li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- Educational Scale Callout for 1º Bachillerato -->
+            <div class="bg-slate-950/80 border border-cyan-500/30 rounded-xl p-3 text-xs space-y-1.5">
+              <div class="flex items-center gap-1.5 font-bold text-cyan-300 text-[11px] uppercase tracking-wider">
+                <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                Aviso Pedagógico de Escala
+              </div>
+              <p class="text-slate-300 text-[11px] leading-relaxed">
+                El núcleo atómico real mide <strong>~10⁻¹⁵ m</strong> (1 femtómetro), mientras que la corteza electrónica mide <strong>~10⁻¹⁰ m</strong> (1 ángstrom).
+              </p>
+              <p class="text-slate-400 text-[10px] leading-relaxed">
+                En este simulador, el núcleo se representa como un <strong>punto ultra-compacto de ~2.5 px</strong>. Más del <strong>99.9% del volumen atómico está vacío</strong>, por lo que casi todas las partículas alfa avanzan sin desviarse.
+              </p>
+            </div>
+
+            <!-- 4. Visual Toggles -->
+            <div class="pt-2 border-t border-slate-800/80 space-y-2 text-xs">
+              <label class="flex items-center gap-2 text-slate-300 cursor-pointer select-none">
+                <input type="checkbox" id="chkTrails" checked onchange="toggleTrails(this.checked)" class="rounded bg-slate-950 border-slate-700 text-amber-500 focus:ring-amber-500">
+                <span>Mostrar Estelas de Trayectoria</span>
+              </label>
+              <label class="flex items-center gap-2 text-slate-300 cursor-pointer select-none">
+                <input type="checkbox" id="chkVectors" checked onchange="toggleVectors(this.checked)" class="rounded bg-slate-950 border-slate-700 text-cyan-500 focus:ring-cyan-500">
+                <span>Mostrar Vectores de Fuerza (F<sub>e</sub>) y Velocidad (v)</span>
+              </label>
+              <label class="flex items-center gap-2 text-slate-300 cursor-pointer select-none">
+                <input type="checkbox" id="chkElectrons" checked onchange="toggleElectrons(this.checked)" class="rounded bg-slate-950 border-slate-700 text-cyan-500 focus:ring-cyan-500">
+                <span>Mostrar Órbitas Electrónicas</span>
+              </label>
+            </div>
+
+          </div>
+
+          <!-- REAL-TIME ANGULAR DISTRIBUTION HISTOGRAM -->
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-3">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+              <h3 class="font-bold text-sm text-slate-200 uppercase tracking-wider flex items-center gap-2">
+                <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                Distribución Angular N(θ)
+              </h3>
+              <button onclick="resetStats()" class="text-[10px] text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 px-2.5 py-1 rounded-lg transition font-semibold flex items-center gap-1 active:scale-95" title="Borrar contadores y reiniciar gráfica">
+                <svg class="w-3 h-3 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                Reiniciar
+              </button>
+            </div>
+
+            <!-- Canvas Graph -->
+            <div class="w-full h-36 bg-slate-950 rounded-xl border border-slate-800 p-2 relative">
+              <canvas id="chartCanvas" class="w-full h-full block"></canvas>
+            </div>
+
+            <!-- LIVE PERCENTAGES TABLE BREAKDOWN -->
+            <div class="bg-slate-950/70 border border-slate-800 rounded-xl p-3 space-y-2">
+              <div class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider flex justify-between">
+                <span>Rango Angular (θ)</span>
+                <span>Porcentaje (Nº)</span>
+              </div>
+              <div id="breakdownList" class="space-y-1.5">
+                <!-- Dynamically populated by updateBreakdownTable() -->
+              </div>
+            </div>
+
+            <!-- Backscatter Ratio Key Discovery Callout -->
+            <div class="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3 flex items-start gap-3">
+              <div class="p-1.5 bg-amber-500/20 rounded-lg text-amber-400 shrink-0">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              </div>
+              <div class="text-xs space-y-1">
+                <div class="font-bold text-amber-300">Proporción Histórica de Rebote:</div>
+                <div class="text-slate-300 font-mono">
+                  Rebotadas (θ &gt; 90°): <span id="ratioText" class="font-bold text-amber-400">1 de cada ~8.000</span>
+                </div>
+                <p class="text-[11px] text-slate-400 leading-snug">
+                  Esta ínfima proporción demuestra que casi toda la masa y carga positiva están concentradas en un volumen minúsculo (el núcleo).
+                </p>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ================================================================= -->
+    <!-- TAB 2: TEORÍA Y GUÍA DIDÁCTICA                                   -->
+    <!-- ================================================================= -->
+    <section id="tab-theory" class="hidden space-y-8 max-w-5xl mx-auto py-2">
+
+      <!-- HERO INTRO -->
+      <div class="bg-gradient-to-r from-slate-900 via-slate-900 to-amber-950/40 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+        <div class="relative z-10 space-y-3">
+          <span class="px-3 py-1 rounded-full bg-amber-500/20 text-amber-400 text-xs font-semibold border border-amber-500/30">
+            Fundamento Histórico y Teórico · 1909-1911
+          </span>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-100">
+            El Nacimiento de la Física Nuclear: El Experimento de Rutherford
+          </h2>
+          <p class="text-slate-300 text-sm sm:text-base leading-relaxed max-w-3xl">
+            Llevado a cabo por Hans Geiger y Ernest Marsden bajo la dirección de Ernest Rutherford en la Universidad de Mánchester, este experimento cambió para siempre nuestra comprensión de la materia y desmontó el modelo de Thomson.
+          </p>
+        </div>
+      </div>
+
+      <!-- GRID OF 3 KEY CONCLUSIONS -->
+      <div class="space-y-4">
+        <h3 class="text-lg font-bold text-slate-100 flex items-center gap-2 border-b border-slate-800 pb-2">
+          <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          Las 3 Grandes Conclusiones del Experimento
+        </h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          
+          <!-- Conclusion 1 -->
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg hover:border-slate-700 transition space-y-3">
+            <div class="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 flex items-center justify-center font-bold text-lg">
+              1
+            </div>
+            <h4 class="font-bold text-slate-100 text-base">El Átomo es Mayoritariamente Espacio Vacío</h4>
+            <p class="text-slate-300 text-xs sm:text-sm leading-relaxed">
+              La inmensa mayoría de las partículas alfa (~99.9%) atraviesan la lámina de oro en línea recta sin desviarse apreciablemente. Esto demuestra que la carga positiva no llena uniformemente el átomo.
+            </p>
+          </div>
+
+          <!-- Conclusion 2 -->
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg hover:border-slate-700 transition space-y-3">
+            <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-lg">
+              2
+            </div>
+            <h4 class="font-bold text-slate-100 text-base">Existe un Núcleo Denso y Positivo</h4>
+            <p class="text-slate-300 text-xs sm:text-sm leading-relaxed">
+              Aproximadamente 1 de cada 8.000 partículas sufre desviaciones extremas (&gt; 90°) o incluso rebota hacia atrás. Para desviarse tanto, la partícula alfa (+2e) debe encontrarse con una gran concentración de carga positiva y masa en el centro.
+            </p>
+          </div>
+
+          <!-- Conclusion 3 -->
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg hover:border-slate-700 transition space-y-3">
+            <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-lg">
+              3
+            </div>
+            <h4 class="font-bold text-slate-100 text-base">Electrones en la Corteza Extra-nuclear</h4>
+            <p class="text-slate-300 text-xs sm:text-sm leading-relaxed">
+              Los electrones (de masa despreciable en comparación con las partículas alfa) giran a distancias enormes alrededor del núcleo, ocupando la corteza exterior del átomo.
+            </p>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ANALOGY & SCALE COMPARISON -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- Famous Quote Box -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-lg flex flex-col justify-between space-y-4">
+          <div class="space-y-3">
+            <span class="text-xs uppercase tracking-wider font-semibold text-amber-400">Cita Célebre de Ernest Rutherford</span>
+            <blockquote class="italic text-slate-200 text-sm sm:text-base border-l-2 border-amber-500 pl-4 py-1">
+              "Fue el acontecimiento más increíble que me ha ocurrido en la vida. Fue tan increíble como si dispararas un obús de 15 pulgadas contra un trozo de papel de seda y este rebotara y te golpeara a ti."
+            </blockquote>
+          </div>
+          <p class="text-xs text-slate-400">
+            — Ernest Rutherford (1911)
+          </p>
+        </div>
+
+        <!-- Scale Comparison Box -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-lg space-y-4">
+          <h4 class="font-bold text-slate-100 text-base flex items-center gap-2">
+            <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9"/></svg>
+            Órdenes de Magnitud Escalar
+          </h4>
+          <div class="space-y-3 text-xs sm:text-sm text-slate-300">
+            <div class="flex items-center justify-between p-2.5 bg-slate-950 rounded-xl border border-slate-800">
+              <span>Radio Atómico (R<sub>átomo</sub>)</span>
+              <span class="font-mono text-cyan-400 font-bold">≈ 10<sup>-10</sup> m (1 Å)</span>
+            </div>
+            <div class="flex items-center justify-between p-2.5 bg-slate-950 rounded-xl border border-slate-800">
+              <span>Radio Nuclear (r<sub>núcleo</sub>)</span>
+              <span class="font-mono text-amber-400 font-bold">≈ 10<sup>-15</sup> m (1 fm)</span>
+            </div>
+            <p class="text-xs text-slate-400 leading-snug">
+              <strong>Analogía práctica:</strong> Si el núcleo atómico tuviera el tamaño de una <em>canica</em> colocada en el centro del campo de fútbol del Santiago Bernabéu, los electrones estarían orbitando en la última grada del estadio.
+            </p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- MATHEMATICAL FORMULATION SECTION -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-lg space-y-4">
+        <h3 class="text-lg font-bold text-slate-100 flex items-center gap-2 border-b border-slate-800 pb-2">
+          <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M12 7h.01"/></svg>
+          Fórmulas Clave de la Dispersión de Coulomb
+        </h3>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 text-xs sm:text-sm text-slate-300">
+          <div class="space-y-2 bg-slate-950 p-4 rounded-xl border border-slate-800">
+            <h5 class="font-bold text-amber-300">1. Repulsión Electrostática (Ley de Coulomb)</h5>
+            <p class="text-slate-400">
+              Fuerza entre la partícula alfa (q₁ = +2e) y el núcleo objetivo (q₂ = +Ze):
+            </p>
+            <div class="text-center font-mono py-3 text-amber-400 text-sm bg-slate-900/60 rounded-lg border border-slate-800">
+              F<sub>e</sub> = k · (2e · Ze) / r² = 2 · k<sub>e</sub> · Z · e² / r²
+            </div>
+          </div>
+
+          <div class="space-y-2 bg-slate-950 p-4 rounded-xl border border-slate-800">
+            <h5 class="font-bold text-cyan-300">2. Ángulo de Dispersión θ y Parámetro b</h5>
+            <p class="text-slate-400">
+              Relación entre el ángulo de desvío θ, el parámetro de impacto b y la energía cinética E<sub>k</sub>:
+            </p>
+            <div class="text-center font-mono py-3 text-cyan-400 text-sm bg-slate-900/60 rounded-lg border border-slate-800">
+              cot(θ / 2) = (2 · b · E<sub>k</sub>) / (k<sub>e</sub> · Z · e²)
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ================================================================= -->
+    <!-- TAB 3: CUESTIONARIO INTERACTIVO                                  -->
+    <!-- ================================================================= -->
+    <section id="tab-quiz" class="hidden space-y-6 max-w-3xl mx-auto py-2">
+
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-bold text-slate-100">Test de Autoevaluación</h2>
+          <p class="text-xs text-slate-400">Afianza tus conocimientos prácticos y teóricos sobre la dispersión alfa.</p>
+        </div>
+        <div id="quizScoreBadge" class="px-4 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs font-mono font-bold text-amber-400">
+          Puntuación: <span id="quizScoreText">0 / 5</span>
+        </div>
+      </div>
+
+      <!-- QUIZ QUESTIONS CONTAINER -->
+      <div id="quizContainer" class="space-y-6">
+        <!-- Rendered dynamically by JS -->
+      </div>
+
+      <!-- RESET QUIZ BUTTON -->
+      <div class="flex justify-end">
+        <button onclick="resetQuiz()" class="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-xl transition border border-slate-700 flex items-center gap-2">
+          <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+          Reiniciar Cuestionario
+        </button>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-slate-800 bg-slate-950 py-4 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4">
+      Simulador Educativo de Física Nuclear · Experimento de Rutherford · Diseñado para 1º de Bachillerato
+    </div>
+  </footer>
+
+  <!-- ================================================================= -->
+  <!-- JAVASCRIPT LOGIC & SIMULATION ENGINE                              -->
+  <!-- ================================================================= -->
+  <script>
+    /* -----------------------------------------------------------------
+       GLOBAL STATE & CONFIGURATION
+       ----------------------------------------------------------------- */
+    const state = {
+      model: 'rutherford', // 'rutherford' | 'thomson'
+      view: 'micro',       // 'micro' | 'macro'
+      elementKey: 'Au',    // 'Au' | 'Ag' | 'Al'
+      energyMeV: 5.0,
+      impactParamPm: 12,   // Impact parameter in picometers
+      showTrails: true,
+      showVectors: true,
+      showElectrons: true,
+      isContinuous: false,
+      
+      // Counters
+      totalEmitted: 0,
+      undeviated: 0,       // < 5 deg
+      deflected: 0,        // 5 - 90 deg
+      backscattered: 0,    // > 90 deg
+      
+      // Histogram Bins for scattering angles: [0-5], [5-15], [15-45], [45-90], [>90]
+      histBins: [0, 0, 0, 0, 0]
+    };
+
+    const ELEMENTS = {
+      Au: { name: 'Oro', symbol: 'Au', Z: 79, color: '#facc15', radius: 2.5 },
+      Ag: { name: 'Plata', symbol: 'Ag', Z: 47, color: '#e2e8f0', radius: 2.0 },
+      Al: { name: 'Aluminio', symbol: 'Al', Z: 13, color: '#94a3b8', radius: 1.5 }
+    };
+
+    // Canvas References & Animation
+    let simCanvas, ctx;
+    let chartCanvas, chartCtx;
+    let animFrameId = null;
+
+    // Simulation Entities
+    let particles = [];
+    let sparks = []; // Macro ZnS screen flashes
+    let screenHits = []; // Persistent scintillation impact dots on ZnS screen ring
+    let electronAngle = 0; // Micro electron orbit animation angle
+
+    /* -----------------------------------------------------------------
+       QUIZ DATA (CLEANED OF ALL SYNTAX ARTIFACTS)
+       ----------------------------------------------------------------- */
+    const quizQuestions = [
+      {
+        id: 1,
+        question: "¿Cuál fue el resultado experimental crucial que llevó a Rutherford a rechazar el modelo de Thomson (\"Pan de pasas\")?",
+        options: [
+          "Que las partículas alfa se ralentizaban al cruzar la lámina.",
+          "Que un pequeño porcentaje de partículas alfa rebotaba en ángulos superiores a 90°.",
+          "Que los electrones salían despedidos del átomo a gran velocidad.",
+          "Que la lámina de oro emitía luz verde al ser bombardeada."
+        ],
+        correct: 1,
+        explanation: "En el modelo de Thomson, la carga positiva estaba distribuida de forma difusa. Las partículas alfa debían atravesar la lámina sin apenas desviarse. Los rebotes a más de 90° demostraron que toda la masa y carga positiva estaban concentradas en un núcleo denso."
+      },
+      {
+        id: 2,
+        question: "Si sustituimos la lámina de Oro (Z = 79) por una de Aluminio (Z = 13), ¿cómo cambia la probabilidad de desvío?",
+        options: [
+          "Aumenta drásticamente la probabilidad de rebote.",
+          "Disminuye significativamente, ya que el núcleo de aluminio tiene menor carga positiva (Z = 13) y repulsa con menos fuerza.",
+          "Se mantiene exactamente igual porque la carga nuclear no influye.",
+          "Las partículas alfa son absorbidas por completo."
+        ],
+        correct: 1,
+        explanation: "La fuerza de repulsión electrostática de Coulomb es directamente proporcional a la carga nuclear Z. Al reducir Z de 79 a 13, la fuerza repulsiva disminuye mucho y las desviaciones grandes son mucho menos frecuentes."
+      },
+      {
+        id: 3,
+        question: "¿Cuál es el orden de magnitud aproximado de la relación entre el radio del átomo y el radio del núcleo?",
+        options: [
+          "El átomo es unas 10 veces más grande que el núcleo.",
+          "Tienen aproximadamente el mismo tamaño.",
+          "El átomo es unas 10.000 a 100.000 veces más grande que el núcleo (10⁻¹⁰ m frente a 10⁻¹⁵ m).",
+          "El núcleo es más grande que el propio átomo."
+        ],
+        correct: 2,
+        explanation: "El radio atómico es de aproximadamente 10⁻¹⁰ m (1 Å) mientras que el núcleo mide solo 10⁻¹⁵ m (1 fm). Esto explica por qué el átomo es casi completamente espacio vacío."
+      },
+      {
+        id: 4,
+        question: "Al AUMENTAR la energía cinética (E_k) de la partícula alfa manteniendo el mismo parámetro de impacto b, ¿qué ocurre con el ángulo de desvío?",
+        options: [
+          "El ángulo de desvío DISMINUYE porque la partícula pasa más rápido cerca del núcleo.",
+          "El ángulo de desvío AUMENTA porque la partícula lleva más energía.",
+          "La partícula se detiene antes de llegar al núcleo.",
+          "No produce ningún efecto en la trayectoria."
+        ],
+        correct: 0,
+        explanation: "A mayor energía cinética (E_k), mayor es la velocidad de la partícula alfa. Al pasar más velozmente cerca del núcleo, la fuerza electrostática actúa durante menos tiempo, resultando en una deflexión o desviación menor."
+      },
+      {
+        id: 5,
+        question: "¿Qué fuerza es la responsable directa de la trayectoria desviada de la partícula alfa?",
+        options: [
+          "La fuerza magnética de Lorentz.",
+          "La fuerza nuclear fuerte atractiva.",
+          "La repulsión electrostática de Coulomb entre la carga positiva de la partícula alfa (+2e) y la del núcleo (+Ze).",
+          "La atracción gravitatoria entre ambas masas."
+        ],
+        correct: 2,
+        explanation: "Tanto la partícula alfa (+2e) como el núcleo atómico (+Ze) poseen carga eléctrica positiva. Según la Ley de Coulomb, cargas del mismo signo sufren repulsión F = k · q₁ · q₂ / r², curvando la trayectoria en una hipérbola."
+      }
+    ];
+
+    let userAnswers = {};
+
+    /* -----------------------------------------------------------------
+       INITIALIZATION ON PAGE LOAD
+       ----------------------------------------------------------------- */
+    window.addEventListener('DOMContentLoaded', () => {
+      simCanvas = document.getElementById('simCanvas');
+      ctx = simCanvas.getContext('2d');
+
+      chartCanvas = document.getElementById('chartCanvas');
+      chartCtx = chartCanvas.getContext('2d');
+
+      resizeCanvases();
+      window.addEventListener('resize', resizeCanvases);
+
+      // Render quiz questions & initial stats table
+      renderQuiz();
+      updateStatsUI();
+
+      // Start Simulation Loop
+      requestAnimationFrame(simLoop);
+    });
+
+    function resizeCanvases() {
+      if (simCanvas && simCanvas.parentElement) {
+        simCanvas.width = simCanvas.parentElement.clientWidth;
+        simCanvas.height = simCanvas.parentElement.clientHeight;
+      }
+      if (chartCanvas && chartCanvas.parentElement) {
+        chartCanvas.width = chartCanvas.parentElement.clientWidth;
+        chartCanvas.height = chartCanvas.parentElement.clientHeight;
+        drawChart();
+      }
+    }
+
+    /* -----------------------------------------------------------------
+       UI CONTROLS & TAB SWITCHING
+       ----------------------------------------------------------------- */
+    function switchTab(tab) {
+      document.getElementById('tab-sim').classList.add('hidden');
+      document.getElementById('tab-theory').classList.add('hidden');
+      document.getElementById('tab-quiz').classList.add('hidden');
+
+      const btnSim = document.getElementById('tabBtnSim');
+      const btnTheory = document.getElementById('tabBtnTheory');
+      const btnQuiz = document.getElementById('tabBtnQuiz');
+
+      [btnSim, btnTheory, btnQuiz].forEach(b => {
+        b.className = "px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-all duration-200";
+      });
+
+      if (tab === 'sim') {
+        document.getElementById('tab-sim').classList.remove('hidden');
+        btnSim.className = "px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 bg-amber-500 text-slate-950 shadow";
+        resizeCanvases();
+      } else if (tab === 'theory') {
+        document.getElementById('tab-theory').classList.remove('hidden');
+        btnTheory.className = "px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 bg-amber-500 text-slate-950 shadow";
+      } else if (tab === 'quiz') {
+        document.getElementById('tab-quiz').classList.remove('hidden');
+        btnQuiz.className = "px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 bg-amber-500 text-slate-950 shadow";
+      }
+    }
+
+    function setModel(model) {
+      state.model = model;
+      const btnR = document.getElementById('modelRutherfordBtn');
+      const btnT = document.getElementById('modelThomsonBtn');
+      const noticeText = document.getElementById('modelNoticeText');
+      const activeBadge = document.getElementById('activeModelBadge');
+
+      if (model === 'rutherford') {
+        btnR.className = "px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 bg-amber-500 text-slate-950 shadow";
+        btnT.className = "px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 text-slate-400 hover:text-slate-100";
+        noticeText.innerHTML = "<strong>Modelo Rutherford:</strong> Toda la carga positiva (+Ze) está concentrada en un núcleo ultra-compacto. Repulsión electrostática de Coulomb F<sub>e</sub> = k · q₁ · q₂ / r².";
+        activeBadge.textContent = "Modelo Nuclear de Rutherford";
+        activeBadge.className = "px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-semibold border border-amber-500/30";
+      } else {
+        btnT.className = "px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 bg-amber-500 text-slate-950 shadow";
+        btnR.className = "px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 text-slate-400 hover:text-slate-100";
+        noticeText.innerHTML = "<strong>Modelo Thomson:</strong> Carga positiva distribuida homogéneamente en una gran esfera uniforme. Las partículas alfa atraviesan casi sin desviarse.";
+        activeBadge.textContent = "Modelo Thomson (\"Pan de pasas\")";
+        activeBadge.className = "px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 font-semibold border border-blue-500/30";
+      }
+      particles = [];
+      sparks = [];
+      screenHits = [];
+    }
+
+    function setViewMode(view) {
+      state.view = view;
+      const btnMacro = document.getElementById('viewMacroBtn');
+      const btnMicro = document.getElementById('viewMicroBtn');
+      const impactBox = document.getElementById('impactParamBox');
+
+      if (view === 'macro') {
+        btnMacro.className = "px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 bg-cyan-500 text-slate-950 shadow";
+        btnMicro.className = "px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 text-slate-400 hover:text-slate-100";
+        impactBox.style.display = 'none';
+      } else {
+        btnMicro.className = "px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 bg-cyan-500 text-slate-950 shadow";
+        btnMacro.className = "px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 text-slate-400 hover:text-slate-100";
+        impactBox.style.display = 'block';
+      }
+      particles = [];
+      sparks = [];
+      screenHits = [];
+    }
+
+    function setViewMode(view) {
+      state.view = view;
+      const btnMacro = document.getElementById('viewMacroBtn');
+      const btnMicro = document.getElementById('viewMicroBtn');
+      const impactBox = document.getElementById('impactParamBox');
+
+      if (view === 'macro') {
+        btnMacro.className = "px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 bg-cyan-500 text-slate-950 shadow";
+        btnMicro.className = "px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 text-slate-400 hover:text-slate-100";
+        impactBox.style.display = 'none';
+      } else {
+        btnMicro.className = "px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 bg-cyan-500 text-slate-950 shadow";
+        btnMacro.className = "px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 text-slate-400 hover:text-slate-100";
+        impactBox.style.display = 'block';
+      }
+      particles = [];
+      sparks = [];
+    }
+
+    function setElement(key) {
+      state.elementKey = key;
+      const elem = ELEMENTS[key];
+      
+      ['Au', 'Ag', 'Al'].forEach(k => {
+        const btn = document.getElementById(`elem${k}`);
+        if (k === key) {
+          btn.className = "py-1.5 text-xs font-semibold rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/40 transition";
+        } else {
+          btn.className = "py-1.5 text-xs font-semibold rounded-lg text-slate-400 hover:text-slate-200 transition";
+        }
+      });
+
+      document.getElementById('elementZVal').textContent = `${elem.name} (Z = ${elem.Z})`;
+      document.getElementById('activeElementBadge').textContent = `${elem.name} (Z = ${elem.Z})`;
+    }
+
+    function updateEnergy(val) {
+      state.energyMeV = parseFloat(val);
+      document.getElementById('energyValue').textContent = `${state.energyMeV.toFixed(1)} MeV`;
+    }
+
+    function updateImpact(val) {
+      state.impactParamPm = parseInt(val);
+      const sign = state.impactParamPm > 0 ? '+' : '';
+      document.getElementById('impactValue').textContent = `${sign}${state.impactParamPm} pm`;
+    }
+
+    function toggleTrails(val) { state.showTrails = val; }
+    function toggleVectors(val) { state.showVectors = val; }
+    function toggleElectrons(val) { state.showElectrons = val; }
+
+    function toggleContinuous() {
+      state.isContinuous = !state.isContinuous;
+      const text = document.getElementById('continuousText');
+      const icon = document.getElementById('continuousIcon');
+
+      if (state.isContinuous) {
+        text.textContent = "Detener Emisión";
+        icon.className = "w-2 h-2 rounded-full bg-rose-500 animate-pulse";
+      } else {
+        text.textContent = "Emisión Continua";
+        icon.className = "w-2 h-2 rounded-full bg-slate-950 animate-ping";
+      }
+    }
+
+    function resetStats() {
+      state.totalEmitted = 0;
+      state.undeviated = 0;
+      state.deflected = 0;
+      state.backscattered = 0;
+      state.histBins = [0, 0, 0, 0, 0];
+      particles = [];
+      sparks = [];
+      screenHits = [];
+      updateStatsUI();
+      drawChart();
+    }
+
+    function updateStatsUI() {
+      const total = state.totalEmitted;
+      document.getElementById('statTotal').textContent = total.toLocaleString();
+      document.getElementById('statUndeviated').textContent = state.undeviated.toLocaleString();
+      document.getElementById('statDeflected').textContent = state.deflected.toLocaleString();
+      document.getElementById('statBackscattered').textContent = state.backscattered.toLocaleString();
+
+      const pctUndev = total > 0 ? (state.undeviated / total * 100).toFixed(1) : '0.0';
+      const pctDefl = total > 0 ? (state.deflected / total * 100).toFixed(1) : '0.0';
+      const pctBack = total > 0 ? (state.backscattered / total * 100).toFixed(total > 1000 ? 3 : 2) : '0.00';
+
+      document.getElementById('statUndeviatedPct').textContent = `${pctUndev}%`;
+      document.getElementById('statDeflectedPct').textContent = `${pctDefl}%`;
+      document.getElementById('statBackscatteredPct').textContent = `${pctBack}%`;
+
+      const ratioText = document.getElementById('ratioText');
+      if (state.backscattered > 0) {
+        const ratio = Math.round(state.totalEmitted / state.backscattered);
+        ratioText.textContent = `1 de cada ~${ratio.toLocaleString()} (${pctBack}%)`;
+      } else if (state.totalEmitted > 0) {
+        ratioText.textContent = `0 de ${state.totalEmitted.toLocaleString()} (0%)`;
+      } else {
+        ratioText.textContent = "1 de cada ~8.000 (~0,012%)";
+      }
+
+      updateBreakdownTable();
+    }
+
+    function updateBreakdownTable() {
+      const listEl = document.getElementById('breakdownList');
+      if (!listEl) return;
+
+      const total = state.totalEmitted;
+      const bins = [
+        { label: '0° - 5°', desc: 'Sin desvío', count: state.histBins[0], color: 'bg-emerald-500', textColor: 'text-emerald-400' },
+        { label: '5° - 15°', desc: 'Leve', count: state.histBins[1], color: 'bg-amber-400', textColor: 'text-amber-400' },
+        { label: '15° - 45°', desc: 'Moderado', count: state.histBins[2], color: 'bg-amber-500', textColor: 'text-amber-400' },
+        { label: '45° - 90°', desc: 'Pronunciado', count: state.histBins[3], color: 'bg-orange-500', textColor: 'text-orange-400' },
+        { label: '> 90°', desc: 'Rebote', count: state.histBins[4], color: 'bg-rose-500', textColor: 'text-rose-400' }
+      ];
+
+      let html = '';
+      bins.forEach(bin => {
+        const pct = total > 0 ? (bin.count / total * 100) : 0;
+        let pctFormatted = '0.0%';
+        if (total > 0 && bin.count > 0) {
+          if (pct >= 10) pctFormatted = pct.toFixed(1) + '%';
+          else if (pct >= 1) pctFormatted = pct.toFixed(1) + '%';
+          else if (pct >= 0.01) pctFormatted = pct.toFixed(2) + '%';
+          else pctFormatted = pct.toFixed(3) + '%';
+        }
+
+        const barWidth = Math.min(100, Math.max(pct > 0 ? 2 : 0, pct));
+
+        html += `
+          <div class="space-y-0.5">
+            <div class="flex items-center justify-between text-[11px] font-mono">
+              <span class="flex items-center gap-1.5 font-medium text-slate-300">
+                <span class="w-2 h-2 rounded-full ${bin.color} inline-block"></span>
+                <span>${bin.label}</span>
+                <span class="text-slate-500 text-[10px] font-sans">(${bin.desc})</span>
+              </span>
+              <span class="font-bold ${bin.textColor}">
+                ${pctFormatted} <span class="text-slate-500 font-normal">(${bin.count.toLocaleString()})</span>
+              </span>
+            </div>
+            <div class="w-full h-1 bg-slate-900 rounded-full overflow-hidden">
+              <div class="h-full ${bin.color} transition-all duration-300" style="width: ${barWidth}%"></div>
+            </div>
+          </div>
+        `;
+      });
+
+      listEl.innerHTML = html;
+    }
+
+    /* -----------------------------------------------------------------
+       PARTICLE EMISSION ENGINE
+       ----------------------------------------------------------------- */
+    function fireSingleParticle(isRandom = false) {
+      const W = simCanvas.width;
+      const H = simCanvas.height;
+
+      if (state.view === 'micro') {
+        const centerY = H / 2;
+
+        let pmValue = state.impactParamPm;
+
+        if (isRandom) {
+          // Choose a random b value between -70 and +70 pm
+          pmValue = Math.floor((Math.random() - 0.5) * 140);
+          
+          // Update the slider UI to show which b was randomly fired
+          const slider = document.getElementById('impactSlider');
+          if (slider) {
+            slider.value = pmValue;
+            updateImpact(pmValue);
+          }
+        }
+
+        // Positive b enters above centerY (y < centerY), negative b enters below (y > centerY)
+        const offsetPx = (pmValue / 80) * (H * 0.35);
+
+        // Particle speed based on Ek
+        const v0 = 3.5 + Math.sqrt(state.energyMeV) * 0.8;
+
+        particles.push({
+          x: 10,
+          y: centerY - offsetPx,
+          vx: v0,
+          vy: 0,
+          path: [],
+          alive: true,
+          model: state.model,
+          counted: false
+        });
+      } else {
+        // Macroscopic View particle
+        const sourceX = W * 0.12;
+        const sourceY = H * 0.5;
+
+        // Spread in source aperture
+        const startY = sourceY + (Math.random() - 0.5) * 6;
+        const speed = 4 + Math.sqrt(state.energyMeV) * 0.6;
+
+        particles.push({
+          x: sourceX,
+          y: startY,
+          vx: speed,
+          vy: (Math.random() - 0.5) * 0.1,
+          path: [],
+          alive: true,
+          stage: 'approaching',
+          angleRad: 0,
+          counted: false
+        });
+      }
+
+      state.totalEmitted++;
+      updateStatsUI();
+    }
+
+    /* -----------------------------------------------------------------
+       MAIN ANIMATION / SIMULATION LOOP
+       ----------------------------------------------------------------- */
+    function simLoop() {
+      // Continuous emission logic
+      if (state.isContinuous) {
+        const spawnRate = state.view === 'macro' ? 2 : 1;
+        for (let i = 0; i < spawnRate; i++) {
+          if (Math.random() < 0.7) {
+            fireSingleParticle(true);
+          }
+        }
+      }
+
+      electronAngle += 0.025;
+
+      // Clear Canvas
+      ctx.clearRect(0, 0, simCanvas.width, simCanvas.height);
+
+      if (state.view === 'micro') {
+        updateAndRenderMicro();
+      } else {
+        updateAndRenderMacro();
+      }
+
+      animFrameId = requestAnimationFrame(simLoop);
+    }
+
+    /* -----------------------------------------------------------------
+       MICROSCOPIC VIEW RENDER & PHYSICALLY ACCURATE ENGINE
+       ----------------------------------------------------------------- */
+    function updateAndRenderMicro() {
+      const W = simCanvas.width;
+      const H = simCanvas.height;
+      const centerX = W / 2;
+      const centerY = H / 2;
+      const elem = ELEMENTS[state.elementKey];
+
+      // Draw Grid / Background
+      drawSubtleGrid();
+
+      // Central horizontal axis line through nucleus
+      ctx.strokeStyle = 'rgba(148, 163, 184, 0.2)';
+      ctx.setLineDash([4, 4]);
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(0, centerY);
+      ctx.lineTo(W, centerY);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // 1. DRAW ATOMIC MODEL (THOMSON OR RUTHERFORD)
+      if (state.model === 'thomson') {
+        // Thomson Plum Pudding Model: Large diffuse positive sphere
+        const atomRadius = Math.min(W, H) * 0.38;
+        
+        const grad = ctx.createRadialGradient(centerX, centerY, 5, centerX, centerY, atomRadius);
+        grad.addColorStop(0, 'rgba(234, 179, 8, 0.25)');
+        grad.addColorStop(0.8, 'rgba(234, 179, 8, 0.12)');
+        grad.addColorStop(1, 'rgba(234, 179, 8, 0.0)');
+
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, atomRadius, 0, Math.PI * 2);
+        ctx.fillStyle = grad;
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(234, 179, 8, 0.35)';
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([4, 4]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        ctx.fillStyle = 'rgba(253, 224, 71, 0.85)';
+        ctx.font = '11px sans-serif';
+        ctx.fillText(`Esfera de Carga Positiva Difusa (+${elem.Z}e)`, centerX - 100, centerY - atomRadius - 10);
+
+        // Embedded Electrons ("Raisins")
+        const numElectrons = 16;
+        for (let i = 0; i < numElectrons; i++) {
+          const angle = i * (Math.PI * 2 / numElectrons) + 0.3;
+          const r = (0.2 + 0.6 * ((i * 7) % 10) / 10) * atomRadius;
+          const ex = centerX + r * Math.cos(angle);
+          const ey = centerY + r * Math.sin(angle);
+
+          ctx.beginPath();
+          ctx.arc(ex, ey, 3.5, 0, Math.PI * 2);
+          ctx.fillStyle = '#38bdf8';
+          ctx.fill();
+        }
+
+      } else {
+        // Rutherford Nuclear Model: Small dense nucleus inside huge electron orbits
+        
+        // Electron Shells (Orbits)
+        if (state.showElectrons) {
+          const orbitR1 = Math.min(W, H) * 0.24;
+          const orbitR2 = Math.min(W, H) * 0.38;
+
+          ctx.strokeStyle = 'rgba(56, 189, 248, 0.12)';
+          ctx.lineWidth = 1;
+          ctx.setLineDash([3, 3]);
+
+          ctx.beginPath();
+          ctx.arc(centerX, centerY, orbitR1, 0, Math.PI * 2);
+          ctx.stroke();
+
+          ctx.beginPath();
+          ctx.arc(centerX, centerY, orbitR2, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.setLineDash([]);
+
+          // Orbiting electron dots
+          for (let i = 0; i < 4; i++) {
+            const a = electronAngle + (i * Math.PI / 2);
+            const ex = centerX + orbitR1 * Math.cos(a);
+            const ey = centerY + orbitR1 * Math.sin(a);
+            ctx.beginPath();
+            ctx.arc(ex, ey, 2.5, 0, Math.PI * 2);
+            ctx.fillStyle = '#38bdf8';
+            ctx.fill();
+          }
+        }
+
+        // Central Ultra-compact Nucleus (2.5px radius for realistic scale)
+        const nucRadius = elem.radius; 
+
+        // Subtle Compact Nucleus Glow
+        const nucGlow = ctx.createRadialGradient(centerX, centerY, 0.5, centerX, centerY, nucRadius * 3.0);
+        nucGlow.addColorStop(0, 'rgba(250, 204, 21, 1.0)');
+        nucGlow.addColorStop(0.4, 'rgba(234, 179, 8, 0.4)');
+        nucGlow.addColorStop(1, 'rgba(234, 179, 8, 0)');
+
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, nucRadius * 3.0, 0, Math.PI * 2);
+        ctx.fillStyle = nucGlow;
+        ctx.fill();
+
+        // Ultra-compact Solid Core Dot
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, nucRadius, 0, Math.PI * 2);
+        ctx.fillStyle = elem.color;
+        ctx.fill();
+        ctx.strokeStyle = '#fef08a';
+        ctx.lineWidth = 0.8;
+        ctx.stroke();
+
+        // Label
+        ctx.fillStyle = '#fde047';
+        ctx.font = 'bold 10px sans-serif';
+        ctx.fillText(`Núcleo (+${elem.Z}e) · r ≈ ${nucRadius}px`, centerX - 45, centerY + nucRadius + 14);
+      }
+
+      // Impact Parameter b Guide Line & Dimension Bracket
+      if (state.showTrails) {
+        const lineY = centerY - (state.impactParamPm / 80) * (H * 0.35);
+
+        // Incoming trajectory guide line
+        ctx.strokeStyle = 'rgba(250, 204, 21, 0.35)';
+        ctx.setLineDash([3, 3]);
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(0, lineY);
+        ctx.lineTo(centerX - 10, lineY);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Vertical dimension bracket for 'b' between axis (centerY) and lineY
+        if (Math.abs(lineY - centerY) > 4) {
+          const dimX = 70;
+          ctx.strokeStyle = '#facc15';
+          ctx.lineWidth = 1.2;
+
+          // Vertical line
+          ctx.beginPath();
+          ctx.moveTo(dimX, centerY);
+          ctx.lineTo(dimX, lineY);
+          ctx.stroke();
+
+          // Top & bottom ticks
+          ctx.beginPath();
+          ctx.moveTo(dimX - 4, centerY); ctx.lineTo(dimX + 4, centerY);
+          ctx.moveTo(dimX - 4, lineY);   ctx.lineTo(dimX + 4, lineY);
+          ctx.stroke();
+
+          // Text label
+          ctx.fillStyle = '#fde047';
+          ctx.font = 'bold 11px monospace';
+          const midY = (centerY + lineY) / 2;
+          const signStr = state.impactParamPm > 0 ? '+' : '';
+          ctx.fillText(`b = ${signStr}${state.impactParamPm} pm`, dimX + 8, midY + 4);
+        } else {
+          ctx.fillStyle = '#fde047';
+          ctx.font = 'bold 11px monospace';
+          ctx.fillText(`b = 0 pm (Impacto Directo)`, 78, centerY - 6);
+        }
+      }
+
+      // 2. NUMERICAL PHYSICS INTEGRATION (RECALIBRATED COULOMB ENGINE)
+      const subSteps = 8;
+      const dt = 0.15;
+      
+      // Coulomb repulsion constant calibrated for realistic scattering:
+      // High impact parameter (>25px): deflection < 3 deg
+      // Low impact parameter (<5px): deflection > 90 deg (backscattering)
+      const kCoulomb = 18.0 * (elem.Z / 79) / (state.energyMeV / 5.0);
+
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        if (!p.alive) continue;
+
+        // Path trail history
+        if (state.showTrails) {
+          p.path.push({ x: p.x, y: p.y });
+          if (p.path.length > 90) p.path.shift();
+        }
+
+        // Sub-step Euler integration
+        for (let sub = 0; sub < subSteps; sub++) {
+          const dx = p.x - centerX;
+          const dy = p.y - centerY;
+          const r2 = dx * dx + dy * dy;
+          const r = Math.sqrt(r2);
+
+          let ax = 0;
+          let ay = 0;
+
+          if (state.model === 'rutherford') {
+            // Coulomb Repulsion: F_e = k / (r^2 + softening)
+            const softening = 4.0;
+            const forceMag = kCoulomb / (r2 + softening);
+            ax = (dx / (r + 0.001)) * forceMag;
+            ay = (dy / (r + 0.001)) * forceMag;
+          } else {
+            // Thomson Model: Extremely weak homogeneous force inside diffuse sphere
+            const atomRadius = Math.min(W, H) * 0.38;
+            if (r < atomRadius) {
+              const kThomson = 0.006 * (elem.Z / 79);
+              ax = (dx / atomRadius) * kThomson;
+              ay = (dy / atomRadius) * kThomson;
+            }
+          }
+
+          p.vx += ax * dt;
+          p.vy += ay * dt;
+          p.x += p.vx * dt;
+          p.y += p.vy * dt;
+        }
+
+        // Exit bounds check & scattering angle registration
+        if (p.x < -30 || p.x > W + 30 || p.y < -30 || p.y > H + 30) {
+          p.alive = false;
+
+          const finalAngleRad = Math.atan2(p.vy, p.vx);
+          let angleDeg = Math.abs(finalAngleRad * 180 / Math.PI);
+          
+          if (!p.counted) {
+            p.counted = true;
+            registerScatteringAngle(angleDeg);
+          }
+        }
+
+        // Draw Trails
+        if (state.showTrails && p.path.length > 1) {
+          ctx.beginPath();
+          ctx.moveTo(p.path[0].x, p.path[0].y);
+          for (let pt = 1; pt < p.path.length; pt++) {
+            ctx.lineTo(p.path[pt].x, p.path[pt].y);
+          }
+          ctx.strokeStyle = 'rgba(6, 182, 212, 0.45)';
+          ctx.lineWidth = 1.2;
+          ctx.stroke();
+        }
+
+        // Draw Alpha Particle Dot
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 3.5, 0, Math.PI * 2);
+        ctx.fillStyle = '#38bdf8';
+        ctx.fill();
+
+        // Draw Force & Velocity Vectors
+        if (state.showVectors && p.alive && p.x > 30 && p.x < W - 30) {
+          const dx = p.x - centerX;
+          const dy = p.y - centerY;
+          const r = Math.sqrt(dx * dx + dy * dy);
+
+          // Force Vector Fe (Magenta)
+          if (r < 220 && state.model === 'rutherford') {
+            const fMag = Math.min(35, 800 / (r + 10));
+            const fx = (dx / r) * fMag;
+            const fy = (dy / r) * fMag;
+            drawArrow(p.x, p.y, p.x + fx, p.y + fy, '#ec4899', 'Fe');
+          }
+
+          // Velocity Vector v (Cyan)
+          const vScale = 4.0;
+          drawArrow(p.x, p.y, p.x + p.vx * vScale, p.y + p.vy * vScale, '#06b6d4', 'v');
+        }
+      }
+
+      particles = particles.filter(p => p.alive);
+    }
+
+    /* -----------------------------------------------------------------
+       MACROSCOPIC VIEW RENDER & DETECTOR SCREEN
+       ----------------------------------------------------------------- */
+    function updateAndRenderMacro() {
+      const W = simCanvas.width;
+      const H = simCanvas.height;
+      const foilX = W * 0.50;
+      const foilY = H * 0.50;
+      const elem = ELEMENTS[state.elementKey];
+
+      drawSubtleGrid();
+
+      // 1. LEAD EMITTER BOX (LEFT)
+      const srcX = W * 0.08;
+      const srcY = H * 0.50;
+      ctx.fillStyle = '#334155';
+      ctx.fillRect(srcX - 35, srcY - 25, 45, 50);
+      ctx.strokeStyle = '#64748b';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(srcX - 35, srcY - 25, 45, 50);
+
+      // Collimator slit
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(srcX + 10, srcY - 3, 20, 6);
+
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '10px sans-serif';
+      ctx.fillText('Fuente α (Ra / Po)', srcX - 35, srcY - 32);
+
+      // Collimated beam axis guideline
+      ctx.strokeStyle = 'rgba(6, 182, 212, 0.15)';
+      ctx.setLineDash([3, 3]);
+      ctx.beginPath();
+      ctx.moveTo(srcX + 30, srcY);
+      ctx.lineTo(foilX, foilY);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // 2. CIRCULAR ZnS DETECTOR SCREEN (with entrance slit on left side)
+      const detRadius = Math.min(W, H) * 0.38;
+      
+      // Entrance opening on left between 154° (2.68 rad) and 206° (3.60 rad)
+      const holeHalfAngle = 0.28; // ~16 degrees half-angle
+      const startAngle = Math.PI + holeHalfAngle; // ~206 deg (bottom-left)
+      const endAngle = Math.PI - holeHalfAngle;   // ~154 deg (top-left)
+
+      // Outer green detector casing
+      ctx.beginPath();
+      ctx.arc(foilX, foilY, detRadius, startAngle, endAngle);
+      ctx.strokeStyle = '#065f46';
+      ctx.lineWidth = 10;
+      ctx.stroke();
+
+      // Inner fluorescent ZnS coating
+      ctx.beginPath();
+      ctx.arc(foilX, foilY, detRadius, startAngle, endAngle);
+      ctx.strokeStyle = '#10b981';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      // Screen Angle Labels and Ticks around ring
+      const anglesToMark = [0, 30, 60, 90, 120, 150, -30, -60, -90, -120, -150];
+      anglesToMark.forEach(deg => {
+        const rad = (deg * Math.PI) / 180;
+        const tx = foilX + (detRadius + 14) * Math.cos(rad);
+        const ty = foilY + (detRadius + 14) * Math.sin(rad);
+
+        // Tick mark
+        const innerX = foilX + (detRadius - 5) * Math.cos(rad);
+        const innerY = foilY + (detRadius - 5) * Math.sin(rad);
+        const outerX = foilX + (detRadius + 5) * Math.cos(rad);
+        const outerY = foilY + (detRadius + 5) * Math.sin(rad);
+
+        ctx.strokeStyle = '#34d399';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(innerX, innerY);
+        ctx.lineTo(outerX, outerY);
+        ctx.stroke();
+
+        ctx.fillStyle = '#a7f3d0';
+        ctx.font = '9px monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(`${Math.abs(deg)}°`, tx, ty);
+      });
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'alphabetic';
+
+      // Label ZnS
+      ctx.fillStyle = '#34d399';
+      ctx.font = 'bold 11px sans-serif';
+      ctx.fillText('Pantalla Circular de Sulfuro de Zinc (ZnS)', foilX - 110, foilY + detRadius + 28);
+
+      // 3. GOLD FOIL AT CENTER
+      const foilHeight = detRadius * 0.7;
+      const gradFoil = ctx.createLinearGradient(foilX - 4, foilY, foilX + 4, foilY);
+      gradFoil.addColorStop(0, elem.color);
+      gradFoil.addColorStop(0.5, '#fef08a');
+      gradFoil.addColorStop(1, elem.color);
+
+      ctx.fillStyle = gradFoil;
+      ctx.fillRect(foilX - 3, foilY - foilHeight / 2, 6, foilHeight);
+      ctx.strokeStyle = 'rgba(250, 204, 21, 0.8)';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(foilX - 3, foilY - foilHeight / 2, 6, foilHeight);
+
+      ctx.fillStyle = '#fde047';
+      ctx.font = 'bold 11px sans-serif';
+      ctx.fillText(`Lámina de ${elem.name}`, foilX - 35, foilY - foilHeight / 2 - 12);
+
+      // 4. PARTICLES MOVEMENT & SCATTERING LOGIC
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        if (!p.alive) continue;
+
+        if (state.showTrails) {
+          p.path.push({ x: p.x, y: p.y });
+          if (p.path.length > 40) p.path.shift();
+        }
+
+        if (p.stage === 'approaching') {
+          p.x += p.vx;
+          p.y += p.vy;
+
+          if (p.x >= foilX) {
+            p.stage = 'scattered';
+
+            let thetaRad = 0;
+
+            if (state.model === 'thomson') {
+              // Thomson: Tiny deflection centered at 0 (max 1 deg)
+              thetaRad = gaussianRandom(0, 0.008);
+            } else {
+              // Rutherford Sampling based on differential cross-section
+              const u = Math.max(0.000001, Math.random());
+              const C = 0.006 * (elem.Z / 79) / (state.energyMeV / 5.0);
+              let theta = 2 * Math.atan(C / Math.sqrt(u));
+
+              if (theta > Math.PI) theta = Math.PI - 0.01;
+              if (Math.random() < 0.5) theta = -theta;
+              thetaRad = theta;
+            }
+
+            p.angleRad = thetaRad;
+            const speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
+            p.vx = speed * Math.cos(thetaRad);
+            p.vy = speed * Math.sin(thetaRad);
+          }
+        } else {
+          // Scattered particle traveling towards detector ring
+          p.x += p.vx;
+          p.y += p.vy;
+
+          const distToFoil = Math.sqrt((p.x - foilX) ** 2 + (p.y - foilY) ** 2);
+          if (distToFoil >= detRadius) {
+            p.alive = false;
+
+            const scatterAngleRad = Math.atan2(p.y - foilY, p.x - foilX);
+            const angleFromLeft = Math.abs(normalizeAngle(scatterAngleRad - Math.PI));
+
+            if (angleFromLeft > holeHalfAngle) {
+              // Hit ZnS screen!
+              const hitX = foilX + detRadius * Math.cos(scatterAngleRad);
+              const hitY = foilY + detRadius * Math.sin(scatterAngleRad);
+
+              sparks.push({
+                x: hitX,
+                y: hitY,
+                life: 1.0
+              });
+
+              if (screenHits.length > 200) screenHits.shift();
+              screenHits.push({
+                x: hitX,
+                y: hitY
+              });
+            }
+
+            let deg = Math.abs(p.angleRad * 180 / Math.PI);
+            if (!p.counted) {
+              p.counted = true;
+              registerScatteringAngle(deg);
+            }
+          }
+        }
+
+        // Draw particle
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+        ctx.fillStyle = '#38bdf8';
+        ctx.fill();
+
+        if (state.showTrails && p.path.length > 1) {
+          ctx.beginPath();
+          ctx.moveTo(p.path[0].x, p.path[0].y);
+          for (let pt = 1; pt < p.path.length; pt++) {
+            ctx.lineTo(p.path[pt].x, p.path[pt].y);
+          }
+          ctx.strokeStyle = 'rgba(6, 182, 212, 0.35)';
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
+      }
+
+      // Draw persistent screen hits
+      screenHits.forEach(h => {
+        ctx.beginPath();
+        ctx.arc(h.x, h.y, 1.5, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(52, 211, 153, 0.6)';
+        ctx.fill();
+      });
+
+      // Render sparks (ZnS luminescence flashes)
+      for (let i = sparks.length - 1; i >= 0; i--) {
+        const s = sparks[i];
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, 7 * s.life, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(52, 211, 153, ${s.life})`;
+        ctx.fill();
+
+        s.life -= 0.04;
+        if (s.life <= 0) sparks.splice(i, 1);
+      }
+
+      particles = particles.filter(p => p.alive);
+    }
+
+    /* -----------------------------------------------------------------
+       STATISTICS & HISTOGRAM ENGINE
+       ----------------------------------------------------------------- */
+    function registerScatteringAngle(deg) {
+      if (deg < 5) {
+        state.undeviated++;
+        state.histBins[0]++;
+      } else if (deg < 15) {
+        state.deflected++;
+        state.histBins[1]++;
+      } else if (deg < 45) {
+        state.deflected++;
+        state.histBins[2]++;
+      } else if (deg < 90) {
+        state.deflected++;
+        state.histBins[3]++;
+      } else {
+        state.backscattered++;
+        state.histBins[4]++;
+      }
+
+      updateStatsUI();
+      drawChart();
+    }
+
+    function drawChart() {
+      if (!chartCtx) return;
+      const W = chartCanvas.width;
+      const H = chartCanvas.height;
+
+      chartCtx.clearRect(0, 0, W, H);
+
+      const labels = ['0-5°', '5-15°', '15-45°', '45-90°', '> 90°'];
+      const data = state.histBins;
+      const total = state.totalEmitted;
+      const maxVal = Math.max(...data, 1);
+
+      const paddingLeft = 28;
+      const paddingBottom = 22;
+      const graphW = W - paddingLeft - 10;
+      const graphH = H - paddingBottom - 16;
+
+      const barWidth = graphW / data.length - 8;
+
+      data.forEach((val, i) => {
+        const x = paddingLeft + i * (barWidth + 8) + 4;
+        
+        // Logarithmic visual scaling for histogram
+        let barH = 0;
+        if (val > 0) {
+          const logVal = Math.log10(val + 1);
+          const maxLog = Math.log10(maxVal + 1);
+          barH = (logVal / maxLog) * graphH;
+        }
+
+        const y = H - paddingBottom - barH;
+
+        let barColor = '#10b981'; // Green for undeviated
+        if (i >= 1 && i <= 3) barColor = '#facc15'; // Amber for deflected
+        if (i === 4) barColor = '#f43f5e'; // Rose for backscattered
+
+        chartCtx.fillStyle = barColor;
+        chartCtx.fillRect(x, y, barWidth, barH);
+
+        const pct = total > 0 ? (val / total * 100) : 0;
+        let pctStr = '0%';
+        if (total > 0 && val > 0) {
+          if (pct >= 10) pctStr = pct.toFixed(1) + '%';
+          else if (pct >= 1) pctStr = pct.toFixed(1) + '%';
+          else if (pct >= 0.01) pctStr = pct.toFixed(2) + '%';
+          else pctStr = pct.toFixed(3) + '%';
+        }
+
+        if (val > 0) {
+          chartCtx.fillStyle = '#e2e8f0';
+          chartCtx.font = 'bold 8.5px monospace';
+          chartCtx.textAlign = 'center';
+          chartCtx.fillText(pctStr, x + barWidth / 2, Math.max(10, y - 4));
+        }
+
+        chartCtx.fillStyle = '#94a3b8';
+        chartCtx.font = '9px sans-serif';
+        chartCtx.textAlign = 'center';
+        chartCtx.fillText(labels[i], x + barWidth / 2, H - 6);
+      });
+
+      chartCtx.textAlign = 'left';
+    }
+
+    /* -----------------------------------------------------------------
+       QUIZ ENGINE
+       ----------------------------------------------------------------- */
+    function renderQuiz() {
+      const container = document.getElementById('quizContainer');
+      container.innerHTML = '';
+
+      quizQuestions.forEach((q, idx) => {
+        const qCard = document.createElement('div');
+        qCard.className = "bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg space-y-4";
+        
+        let optionsHTML = '';
+        q.options.forEach((opt, optIdx) => {
+          optionsHTML += `
+            <button onclick="selectQuizOption(${q.id}, ${optIdx})" 
+              id="q_${q.id}_opt_${optIdx}"
+              class="w-full text-left p-3 rounded-xl border border-slate-800 bg-slate-950/60 hover:bg-slate-800/80 text-xs sm:text-sm text-slate-200 transition flex items-center justify-between">
+              <span>${opt}</span>
+              <span id="q_${q.id}_icon_${optIdx}" class="w-4 h-4 rounded-full border border-slate-700 shrink-0"></span>
+            </button>
+          `;
+        });
+
+        qCard.innerHTML = `
+          <div class="flex items-start gap-3">
+            <span class="w-7 h-7 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 font-bold text-xs flex items-center justify-center shrink-0">
+              ${idx + 1}
+            </span>
+            <h3 class="font-semibold text-slate-100 text-sm sm:text-base leading-snug">${q.question}</h3>
+          </div>
+          <div class="space-y-2 pl-0 sm:pl-10">
+            ${optionsHTML}
+          </div>
+          <div id="q_${q.id}_explanation" class="hidden pl-0 sm:pl-10 p-3 rounded-xl text-xs space-y-1"></div>
+        `;
+
+        container.appendChild(qCard);
+      });
+    }
+
+    function selectQuizOption(qId, optIdx) {
+      userAnswers[qId] = optIdx;
+      const q = quizQuestions.find(item => item.id === qId);
+      const isCorrect = (optIdx === q.correct);
+
+      q.options.forEach((_, i) => {
+        const btn = document.getElementById(`q_${qId}_opt_${i}`);
+        const icon = document.getElementById(`q_${qId}_icon_${i}`);
+        btn.disabled = true;
+
+        if (i === q.correct) {
+          btn.className = "w-full text-left p-3 rounded-xl border border-emerald-500/50 bg-emerald-500/10 text-emerald-200 text-xs sm:text-sm font-medium flex items-center justify-between";
+          icon.className = "w-4 h-4 rounded-full bg-emerald-500 border border-emerald-400";
+        } else if (i === optIdx && !isCorrect) {
+          btn.className = "w-full text-left p-3 rounded-xl border border-rose-500/50 bg-rose-500/10 text-rose-200 text-xs sm:text-sm font-medium flex items-center justify-between";
+          icon.className = "w-4 h-4 rounded-full bg-rose-500 border border-rose-400";
+        } else {
+          btn.className = "w-full text-left p-3 rounded-xl border border-slate-800/40 bg-slate-950/30 text-slate-500 text-xs sm:text-sm flex items-center justify-between opacity-50";
+        }
+      });
+
+      const expBox = document.getElementById(`q_${qId}_explanation`);
+      expBox.classList.remove('hidden');
+      if (isCorrect) {
+        expBox.className = "pl-0 sm:pl-10 p-3 rounded-xl text-xs space-y-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-300";
+        expBox.innerHTML = `<strong>¡Correcto!</strong> ${q.explanation}`;
+      } else {
+        expBox.className = "pl-0 sm:pl-10 p-3 rounded-xl text-xs space-y-1 bg-rose-500/10 border border-rose-500/20 text-rose-300";
+        expBox.innerHTML = `<strong>Incorrecto.</strong> ${q.explanation}`;
+      }
+
+      let score = 0;
+      quizQuestions.forEach(item => {
+        if (userAnswers[item.id] === item.correct) score++;
+      });
+      document.getElementById('quizScoreText').textContent = `${score} / ${quizQuestions.length}`;
+    }
+
+    function resetQuiz() {
+      userAnswers = {};
+      document.getElementById('quizScoreText').textContent = `0 / ${quizQuestions.length}`;
+      renderQuiz();
+    }
+
+    /* -----------------------------------------------------------------
+       UTILITY DRAWING HELPERS
+       ----------------------------------------------------------------- */
+    function drawSubtleGrid() {
+      const W = simCanvas.width;
+      const H = simCanvas.height;
+      ctx.strokeStyle = 'rgba(30, 41, 59, 0.4)';
+      ctx.lineWidth = 1;
+
+      const step = 40;
+      for (let x = 0; x < W; x += step) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, H);
+        ctx.stroke();
+      }
+      for (let y = 0; y < H; y += step) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(W, y);
+        ctx.stroke();
+      }
+    }
+
+    function drawArrow(fromx, fromy, tox, toy, color, label) {
+      const headlen = 7;
+      const angle = Math.atan2(toy - fromy, tox - fromx);
+
+      ctx.strokeStyle = color;
+      ctx.fillStyle = color;
+      ctx.lineWidth = 1.5;
+
+      ctx.beginPath();
+      ctx.moveTo(fromx, fromy);
+      ctx.lineTo(tox, toy);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(tox, toy);
+      ctx.lineTo(tox - headlen * Math.cos(angle - Math.PI / 6), toy - headlen * Math.sin(angle - Math.PI / 6));
+      ctx.lineTo(tox - headlen * Math.cos(angle + Math.PI / 6), toy - headlen * Math.sin(angle + Math.PI / 6));
+      ctx.lineTo(tox, toy);
+      ctx.fill();
+
+      if (label) {
+        ctx.font = 'bold 9px sans-serif';
+        ctx.fillText(label, tox + 4, toy - 2);
+      }
+    }
+
+    function gaussianRandom(mean = 0, stdev = 1) {
+      const u = 1 - Math.random();
+      const v = Math.random();
+      const z = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+      return z * stdev + mean;
+    }
+
+    function normalizeAngle(rad) {
+      while (rad > Math.PI) rad -= 2 * Math.PI;
+      while (rad < -Math.PI) rad += 2 * Math.PI;
+      return rad;
+    }
+  </script>
+</body>
+</html>

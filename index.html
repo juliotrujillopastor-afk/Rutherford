@@ -6,7 +6,7 @@
   <title>Simulador del Experimento de Rutherford | 1º Bachillerato</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Tailwind Config for Custom Theme -->
+  <!-- Tailwind Config -->
   <script>
     tailwind.config = {
       darkMode: 'class',
@@ -155,20 +155,20 @@
 
         <!-- Simulation Actions -->
         <div class="flex items-center gap-2 flex-wrap">
-          <button id="btnFireOne" onclick="fireSingleParticle(false)" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-100 border border-slate-700 rounded-xl text-xs font-medium transition flex items-center gap-1.5 active:scale-95" title="Disparar partícula con el parámetro b actual del slider">
-            <svg class="w-3.5 h-3.5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          <button id="btnFireOneFixed" onclick="fireSingleParticle(false)" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-100 border border-slate-700 rounded-xl text-xs font-medium transition flex items-center gap-1.5 active:scale-95" title="Disparar partícula alfa usando el parámetro b fijado en el deslizador">
+            <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
             Disparar (b actual)
           </button>
-          <button id="btnFireRandom" onclick="fireSingleParticle(true)" class="px-3 py-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 active:scale-95" title="Disparar partícula eligiendo b aleatoriamente">
-            <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+          <button id="btnFireOneRandom" onclick="fireSingleParticle(true)" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-100 border border-slate-700 rounded-xl text-xs font-medium transition flex items-center gap-1.5 active:scale-95" title="Disparar partícula alfa con un parámetro b aleatorio con precisión de centésimas">
+            <svg class="w-3.5 h-3.5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
             Disparar 1 (b aleatorio)
           </button>
           <button id="btnContinuous" onclick="toggleContinuous()" class="px-3.5 py-2 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold rounded-xl text-xs transition flex items-center gap-1.5 shadow-lg shadow-cyan-500/20 active:scale-95">
             <span id="continuousIcon" class="w-2 h-2 rounded-full bg-slate-950 animate-ping"></span>
             <span id="continuousText">Emisión Continua</span>
           </button>
-          <button onclick="resetStats()" class="px-3 py-2 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 active:scale-95" title="Reiniciar datos y contadores de partículas">
-            <svg class="w-3.5 h-3.5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+          <button onclick="resetStats()" class="px-3 py-2 text-xs font-semibold text-rose-400 hover:text-rose-200 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 rounded-xl transition flex items-center gap-1.5" title="Reiniciar todos los contadores de partículas">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
             Reiniciar Contadores
           </button>
         </div>
@@ -190,9 +190,6 @@
               <span id="activeElementBadge" class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
                 Oro (Z = 79)
               </span>
-            </div>
-            <div class="px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 font-mono text-[11px]" title="Relación de tamaño real entre núcleo y átomo">
-              Escala Real: 1 : 100.000 (10⁻¹⁵ m vs 10⁻¹⁰ m)
             </div>
             <div id="canvasLegend" class="flex items-center gap-4 text-xs font-mono">
               <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-cyan-400 inline-block shadow shadow-cyan-400/50"></span> Partícula α (+2e)</span>
@@ -285,45 +282,27 @@
             <div id="impactParamBox" class="space-y-2 bg-slate-950/60 p-3 rounded-xl border border-slate-800">
               <div class="flex justify-between items-center text-xs">
                 <label for="impactSlider" class="text-slate-300 font-medium">Parámetro de Impacto (<span class="font-mono text-amber-400 font-bold">b</span>):</label>
-                <span id="impactValue" class="font-mono text-amber-400 font-bold">+12 pm</span>
+                <span id="impactValue" class="font-mono text-amber-400 font-bold">+12.00 pm</span>
               </div>
-              <input type="range" id="impactSlider" min="-80" max="80" step="1" value="12" oninput="updateImpact(this.value)"
+              <input type="range" id="impactSlider" min="-80" max="80" step="0.01" value="12.00" oninput="updateImpact(this.value)"
                 class="w-full h-2 bg-slate-900 rounded-lg appearance-none cursor-pointer accent-amber-400 border border-slate-800">
               <div class="flex justify-between text-[10px] text-slate-500 font-mono">
-                <span>-80 pm (Abajo)</span>
-                <span>0 pm (Frontal)</span>
-                <span>+80 pm (Arriba)</span>
+                <span>-80.00 pm (Abajo)</span>
+                <span>0.00 pm (Frontal)</span>
+                <span>+80.00 pm (Arriba)</span>
               </div>
 
               <!-- Interactive b explanation box -->
-              <div class="bg-amber-500/10 border border-amber-500/20 rounded-lg p-2.5 text-[11px] text-slate-300 space-y-1">
-                <div class="font-bold text-amber-300 flex items-center gap-1">
-                  <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                  ¿Qué es el parámetro de impacto "b"?
-                </div>
-                <p class="leading-relaxed text-slate-300">
-                  Es la <strong>distancia vertical con signo</strong> desde la línea central del núcleo:
+              <div class="text-[11px] text-slate-300 pt-1 border-t border-slate-800/80 leading-relaxed space-y-1">
+                <p>
+                  <strong>¿Qué es b?</strong> Es la distancia perpendicular desde la trayectoria de la partícula alfa hasta el centro del núcleo atómico.
                 </p>
-                <ul class="list-disc list-inside text-slate-400 text-[10.5px] space-y-0.5">
-                  <li><strong>b &gt; 0</strong>: Disparo por <em>arriba</em> del núcleo (desvío/rebote hacia arriba).</li>
-                  <li><strong>b = 0</strong>: Impacto <em>frontal directo</em> $\rightarrow$ <span class="text-rose-400 font-bold">Rebote (&gt; 90°)</span>.</li>
-                  <li><strong>b &lt; 0</strong>: Disparo por <em>abajo</em> del núcleo (desvío/rebote hacia abajo).</li>
-                </ul>
+                <p class="text-[10px] text-amber-400/90 font-mono">
+                  • b &gt; 0: Entrada por ARRIBA del núcleo.<br>
+                  • b = 0: Impacto FRONTAL directo (Rebote 180°).<br>
+                  • b &lt; 0: Entrada por ABAJO del núcleo.
+                </p>
               </div>
-            </div>
-
-            <!-- Educational Scale Callout for 1º Bachillerato -->
-            <div class="bg-slate-950/80 border border-cyan-500/30 rounded-xl p-3 text-xs space-y-1.5">
-              <div class="flex items-center gap-1.5 font-bold text-cyan-300 text-[11px] uppercase tracking-wider">
-                <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                Aviso Pedagógico de Escala
-              </div>
-              <p class="text-slate-300 text-[11px] leading-relaxed">
-                El núcleo atómico real mide <strong>~10⁻¹⁵ m</strong> (1 femtómetro), mientras que la corteza electrónica mide <strong>~10⁻¹⁰ m</strong> (1 ángstrom).
-              </p>
-              <p class="text-slate-400 text-[10px] leading-relaxed">
-                En este simulador, el núcleo se representa como un <strong>punto ultra-compacto de ~2.5 px</strong>. Más del <strong>99.9% del volumen atómico está vacío</strong>, por lo que casi todas las partículas alfa avanzan sin desviarse.
-              </p>
             </div>
 
             <!-- 4. Visual Toggles -->
@@ -351,10 +330,12 @@
                 <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
                 Distribución Angular N(θ)
               </h3>
-              <button onclick="resetStats()" class="text-[10px] text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 px-2.5 py-1 rounded-lg transition font-semibold flex items-center gap-1 active:scale-95" title="Borrar contadores y reiniciar gráfica">
-                <svg class="w-3 h-3 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-                Reiniciar
-              </button>
+              <div class="flex items-center gap-2">
+                <span class="text-[10px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded font-mono">Tiempo Real</span>
+                <button onclick="resetStats()" class="text-[10px] font-semibold text-rose-400 hover:text-rose-200 bg-rose-500/10 px-2 py-0.5 rounded border border-rose-500/20 transition">
+                  Reiniciar
+                </button>
+              </div>
             </div>
 
             <!-- Canvas Graph -->
@@ -584,7 +565,7 @@
       view: 'micro',       // 'micro' | 'macro'
       elementKey: 'Au',    // 'Au' | 'Ag' | 'Al'
       energyMeV: 5.0,
-      impactParamPm: 12,   // Impact parameter in picometers
+      impactParamPm: 12.00, // Impact parameter in picometers (hundredths precision)
       showTrails: true,
       showVectors: true,
       showElectrons: true,
@@ -618,7 +599,7 @@
     let electronAngle = 0; // Micro electron orbit animation angle
 
     /* -----------------------------------------------------------------
-       QUIZ DATA (CLEANED OF ALL SYNTAX ARTIFACTS)
+       QUIZ DATA
        ----------------------------------------------------------------- */
     const quizQuestions = [
       {
@@ -792,25 +773,6 @@
       screenHits = [];
     }
 
-    function setViewMode(view) {
-      state.view = view;
-      const btnMacro = document.getElementById('viewMacroBtn');
-      const btnMicro = document.getElementById('viewMicroBtn');
-      const impactBox = document.getElementById('impactParamBox');
-
-      if (view === 'macro') {
-        btnMacro.className = "px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 bg-cyan-500 text-slate-950 shadow";
-        btnMicro.className = "px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 text-slate-400 hover:text-slate-100";
-        impactBox.style.display = 'none';
-      } else {
-        btnMicro.className = "px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 bg-cyan-500 text-slate-950 shadow";
-        btnMacro.className = "px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 text-slate-400 hover:text-slate-100";
-        impactBox.style.display = 'block';
-      }
-      particles = [];
-      sparks = [];
-    }
-
     function setElement(key) {
       state.elementKey = key;
       const elem = ELEMENTS[key];
@@ -834,9 +796,9 @@
     }
 
     function updateImpact(val) {
-      state.impactParamPm = parseInt(val);
+      state.impactParamPm = parseFloat(val);
       const sign = state.impactParamPm > 0 ? '+' : '';
-      document.getElementById('impactValue').textContent = `${sign}${state.impactParamPm} pm`;
+      document.getElementById('impactValue').textContent = `${sign}${state.impactParamPm.toFixed(2)} pm`;
     }
 
     function toggleTrails(val) { state.showTrails = val; }
@@ -959,8 +921,8 @@
         let pmValue = state.impactParamPm;
 
         if (isRandom) {
-          // Choose a random b value between -70 and +70 pm
-          pmValue = Math.floor((Math.random() - 0.5) * 140);
+          // Choose a random b value between -70.00 and +70.00 pm with hundredths precision
+          pmValue = parseFloat(((Math.random() - 0.5) * 140).toFixed(2));
           
           // Update the slider UI to show which b was randomly fired
           const slider = document.getElementById('impactSlider');
@@ -1021,7 +983,28 @@
         const spawnRate = state.view === 'macro' ? 2 : 1;
         for (let i = 0; i < spawnRate; i++) {
           if (Math.random() < 0.7) {
-            fireSingleParticle(true);
+            if (state.view === 'micro') {
+              // Uniform distribution of b across the atomic field (-75.00 to +75.00 pm)
+              const randB = parseFloat(((Math.random() - 0.5) * 150).toFixed(2));
+              const centerY = simCanvas.height / 2;
+              const offsetPx = (randB / 80) * (simCanvas.height * 0.35);
+              const v0 = 3.5 + Math.sqrt(state.energyMeV) * 0.8;
+
+              particles.push({
+                x: 10,
+                y: centerY - offsetPx,
+                vx: v0,
+                vy: 0,
+                path: [],
+                alive: true,
+                model: state.model,
+                counted: false
+              });
+              state.totalEmitted++;
+              updateStatsUI();
+            } else {
+              fireSingleParticle(false);
+            }
           }
         }
       }
@@ -1052,16 +1035,6 @@
 
       // Draw Grid / Background
       drawSubtleGrid();
-
-      // Central horizontal axis line through nucleus
-      ctx.strokeStyle = 'rgba(148, 163, 184, 0.2)';
-      ctx.setLineDash([4, 4]);
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(0, centerY);
-      ctx.lineTo(W, centerY);
-      ctx.stroke();
-      ctx.setLineDash([]);
 
       // 1. DRAW ATOMIC MODEL (THOMSON OR RUTHERFORD)
       if (state.model === 'thomson') {
@@ -1134,7 +1107,7 @@
           }
         }
 
-        // Central Ultra-compact Nucleus (2.5px radius for realistic scale)
+        // Central Ultra-compact Nucleus
         const nucRadius = elem.radius; 
 
         // Subtle Compact Nucleus Glow
@@ -1160,61 +1133,63 @@
         // Label
         ctx.fillStyle = '#fde047';
         ctx.font = 'bold 10px sans-serif';
-        ctx.fillText(`Núcleo (+${elem.Z}e) · r ≈ ${nucRadius}px`, centerX - 45, centerY + nucRadius + 14);
+        ctx.fillText(`Núcleo (+${elem.Z}e)`, centerX - 30, centerY + nucRadius + 14);
       }
 
-      // Impact Parameter b Guide Line & Dimension Bracket
-      if (state.showTrails) {
-        const lineY = centerY - (state.impactParamPm / 80) * (H * 0.35);
+      // Impact Parameter b Visual Dimension Line & Label
+      if (!state.isContinuous && state.showTrails) {
+        const offsetPx = (state.impactParamPm / 80) * (H * 0.35);
+        const lineY = centerY - offsetPx;
 
-        // Incoming trajectory guide line
-        ctx.strokeStyle = 'rgba(250, 204, 21, 0.35)';
-        ctx.setLineDash([3, 3]);
+        // Faint horizontal trajectory line across canvas
+        ctx.strokeStyle = 'rgba(250, 204, 21, 0.22)';
+        ctx.setLineDash([4, 4]);
         ctx.lineWidth = 1;
         ctx.beginPath();
         ctx.moveTo(0, lineY);
-        ctx.lineTo(centerX - 10, lineY);
+        ctx.lineTo(W, lineY);
+        ctx.stroke();
+
+        // Central Axis Reference Line
+        ctx.strokeStyle = 'rgba(148, 163, 184, 0.25)';
+        ctx.beginPath();
+        ctx.moveTo(0, centerY);
+        ctx.lineTo(W, centerY);
         ctx.stroke();
         ctx.setLineDash([]);
 
-        // Vertical dimension bracket for 'b' between axis (centerY) and lineY
-        if (Math.abs(lineY - centerY) > 4) {
-          const dimX = 70;
+        // Vertical Dimension Arrow for b
+        const dimX = 70;
+        if (Math.abs(offsetPx) > 3) {
           ctx.strokeStyle = '#facc15';
           ctx.lineWidth = 1.2;
-
-          // Vertical line
           ctx.beginPath();
           ctx.moveTo(dimX, centerY);
           ctx.lineTo(dimX, lineY);
           ctx.stroke();
 
-          // Top & bottom ticks
-          ctx.beginPath();
-          ctx.moveTo(dimX - 4, centerY); ctx.lineTo(dimX + 4, centerY);
-          ctx.moveTo(dimX - 4, lineY);   ctx.lineTo(dimX + 4, lineY);
-          ctx.stroke();
+          // Arrow ticks
+          ctx.fillStyle = '#facc15';
+          ctx.fillRect(dimX - 4, centerY - 1, 9, 2);
+          ctx.fillRect(dimX - 4, lineY - 1, 9, 2);
 
           // Text label
           ctx.fillStyle = '#fde047';
           ctx.font = 'bold 11px monospace';
           const midY = (centerY + lineY) / 2;
           const signStr = state.impactParamPm > 0 ? '+' : '';
-          ctx.fillText(`b = ${signStr}${state.impactParamPm} pm`, dimX + 8, midY + 4);
+          ctx.fillText(`b = ${signStr}${state.impactParamPm.toFixed(2)} pm`, dimX + 8, midY + 4);
         } else {
           ctx.fillStyle = '#fde047';
           ctx.font = 'bold 11px monospace';
-          ctx.fillText(`b = 0 pm (Impacto Directo)`, 78, centerY - 6);
+          ctx.fillText(`b = 0.00 pm (Impacto Directo)`, 78, centerY - 6);
         }
       }
 
-      // 2. NUMERICAL PHYSICS INTEGRATION (RECALIBRATED COULOMB ENGINE)
+      // 2. NUMERICAL PHYSICS INTEGRATION (COULOMB SCATTERING)
       const subSteps = 8;
       const dt = 0.15;
       
-      // Coulomb repulsion constant calibrated for realistic scattering:
-      // High impact parameter (>25px): deflection < 3 deg
-      // Low impact parameter (<5px): deflection > 90 deg (backscattering)
       const kCoulomb = 18.0 * (elem.Z / 79) / (state.energyMeV / 5.0);
 
       for (let i = particles.length - 1; i >= 0; i--) {
@@ -1244,7 +1219,7 @@
             ax = (dx / (r + 0.001)) * forceMag;
             ay = (dy / (r + 0.001)) * forceMag;
           } else {
-            // Thomson Model: Extremely weak homogeneous force inside diffuse sphere
+            // Thomson Model
             const atomRadius = Math.min(W, H) * 0.38;
             if (r < atomRadius) {
               const kThomson = 0.006 * (elem.Z / 79);
@@ -1351,13 +1326,12 @@
       ctx.stroke();
       ctx.setLineDash([]);
 
-      // 2. CIRCULAR ZnS DETECTOR SCREEN (with entrance slit on left side)
+      // 2. CIRCULAR ZnS DETECTOR SCREEN
       const detRadius = Math.min(W, H) * 0.38;
       
-      // Entrance opening on left between 154° (2.68 rad) and 206° (3.60 rad)
       const holeHalfAngle = 0.28; // ~16 degrees half-angle
-      const startAngle = Math.PI + holeHalfAngle; // ~206 deg (bottom-left)
-      const endAngle = Math.PI - holeHalfAngle;   // ~154 deg (top-left)
+      const startAngle = Math.PI + holeHalfAngle;
+      const endAngle = Math.PI - holeHalfAngle;
 
       // Outer green detector casing
       ctx.beginPath();
@@ -1380,7 +1354,6 @@
         const tx = foilX + (detRadius + 14) * Math.cos(rad);
         const ty = foilY + (detRadius + 14) * Math.sin(rad);
 
-        // Tick mark
         const innerX = foilX + (detRadius - 5) * Math.cos(rad);
         const innerY = foilY + (detRadius - 5) * Math.sin(rad);
         const outerX = foilX + (detRadius + 5) * Math.cos(rad);
@@ -1444,10 +1417,8 @@
             let thetaRad = 0;
 
             if (state.model === 'thomson') {
-              // Thomson: Tiny deflection centered at 0 (max 1 deg)
               thetaRad = gaussianRandom(0, 0.008);
             } else {
-              // Rutherford Sampling based on differential cross-section
               const u = Math.max(0.000001, Math.random());
               const C = 0.006 * (elem.Z / 79) / (state.energyMeV / 5.0);
               let theta = 2 * Math.atan(C / Math.sqrt(u));
@@ -1463,7 +1434,6 @@
             p.vy = speed * Math.sin(thetaRad);
           }
         } else {
-          // Scattered particle traveling towards detector ring
           p.x += p.vx;
           p.y += p.vy;
 
@@ -1475,7 +1445,6 @@
             const angleFromLeft = Math.abs(normalizeAngle(scatterAngleRad - Math.PI));
 
             if (angleFromLeft > holeHalfAngle) {
-              // Hit ZnS screen!
               const hitX = foilX + detRadius * Math.cos(scatterAngleRad);
               const hitY = foilY + detRadius * Math.sin(scatterAngleRad);
 
@@ -1588,7 +1557,6 @@
       data.forEach((val, i) => {
         const x = paddingLeft + i * (barWidth + 8) + 4;
         
-        // Logarithmic visual scaling for histogram
         let barH = 0;
         if (val > 0) {
           const logVal = Math.log10(val + 1);
